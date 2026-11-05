@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head(${declaration.id == null ? '填写申报表' : '编辑申报表'})}"></head>
+<body>
+<div class="app">
+    <div th:replace="~{layout :: sidebar('declaration')}"></div>
+
+    <div class="main">
+        <main class="content">
+            <header class="page-head">
+                <div>
+                    <div class="crumbs">
+                        <a th:href="@{/}">首页</a>
+                        <span class="sep">/</span>
+                        <a th:href="@{/declaration/list}">申报管理</a>
+                        <span class="sep">/</span>
+                        <span th:text="${declaration.id == null ? '填写申报' : '编辑申报'}">填写申报</span>
+                    </div>
+                    <h1 th:text="${declaration.id == null ? '填写申报表' : '编辑申报表'}">填写申报表</h1>
+                    <p class="subtitle">选择纳税人并填写申报数据，提交后进入待审核状态</p>
+                </div>
+            </header>
+
+            <div class="form-shell">
+                <form class="card form-card"
+                      th:action="${declaration.id == null} ? @{/declaration/save} : @{/declaration/update}"
+                      th:object="${declaration}" method="post">
+                    <input type="hidden" th:field="*{id}">
+
+                    <div class="form-head">
+                        <span class="form-head-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8l-5-5Z"/>
+                                <path d="M14 3v5h5"/>
+                                <path d="M8.5 13h7M8.5 16.5h4.5"/>
+                            </svg>
+                        </span>
+                        <div>
+                            <h2 th:text="${declaration.id == null ? '申报信息' : '修改申报信息'}">申报信息</h2>
+                            <p>带 <span class="req">*</span> 的字段为必填项，金额请精确到分。</p>
+                        </div>
+                    </div>
+
+                    <div class="form-body">
+                        <div class="form-section">
+                            <h3 class="form-section-title">申报主体</h3>
+                            <div class="form-grid">
+                                <div class="field form-group is-full">
+                                    <label for="taxpayerId">纳税人 <span class="req">*</span></label>
+                                    <select class="select form-control" id="taxpayerId" th:field="*{taxpayerId}" required
+                                            th:unless="${taxpayerLocked}">
+                                        <option value="">请选择纳税人企业</option>
+                                        <option th:each="tp : ${taxpayers}" th:value="${tp.id}"
+                                                th:text="${tp.companyName}"></option>
+                                    </select>
+                                    <!-- 纳税人角色：申报主体由后端锁定为本企业，前端不可选择、不可篡改 -->
+                                    <th:block th:if="${taxpayerLocked}">
+                                        <input type="hidden" th:field="*{taxpayerId}">
+                                        <input class="input form-control" type="text" readonly
+                                               th:value="${#lists.isEmpty(taxpayers) ? '未绑定纳税人' : taxpayers[0].companyName}">
+                                        <span class="hint">系统已锁定为当前账号所属企业，不可更改。</span>
+                                    </th:block>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="form-section-title">申报数据</h3>
+                            <div class="form-grid">
+                                <div class="field form-group">
+                                    <label for="taxType">税种 <span class="req">*</span></label>
+                                    <select class="select form-control" id="taxType" th:field="*{taxType}" required>
+                                        <option value="增值税">增值税</option>
+                                        <option value="所得税">所得税</option>
+                                    </select>
+                                </div>
+                                <div class="field form-group">
+                                    <label for="declareMonth">申报所属期 <span class="req">*</span></label>
+                                    <input class="input form-control" type="month" id="declareMonth"
+                                           th:field="*{declareMonth}" required>
+                                </div>
+                                <div class="field form-group is-full">
+                                    <label for="amount">申报金额 <span class="req">*</span></label>
+                                    <div class="amount-input">
+                                        <span class="currency" aria-hidden="true">¥</span>
+                                        <input class="input form-control" type="number" id="amount" step="0.01" min="0"
+                                               th:field="*{amount}" placeholder="0.00" required>
+                                    </div>
+                                    <span class="hint">请填写本次申报的应纳税金额，最多保留两位小数。</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M5 12.5 9.5 17 19 7.5"/>
+                            </svg>
+                            <span th:text="${declaration.id == null ? '提交申报' : '保存修改'}">提交申报</span>
+                        </button>
+                        <a class="btn" th:href="@{/declaration/list}">返回列表</a>
+                        <span class="spacer"></span>
+                        <span class="tip" th:if="${declaration.id == null}">提交后状态为「待审核」</span>
+                        <span class="tip" th:if="${declaration.id != null}">修改后将保留当前审核状态</span>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

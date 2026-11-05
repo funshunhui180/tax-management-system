@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('纳税人管理')}"></head>
+<body>
+<div class="app">
+    <div th:replace="~{layout :: sidebar('taxpayer')}"></div>
+
+    <div class="main">
+        <main class="content">
+            <header class="page-head">
+                <div>
+                    <div class="crumbs">
+                        <a th:href="@{/}">首页</a>
+                        <span class="sep">/</span>
+                        <span>纳税人管理</span>
+                    </div>
+                    <h1>纳税人管理</h1>
+                    <p class="subtitle">集中维护企业纳税人档案与登记状态</p>
+                </div>
+                <div class="page-actions">
+                    <a class="btn btn-primary" th:href="@{/taxpayer/add}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                        新增纳税人
+                    </a>
+                </div>
+            </header>
+
+            <div th:replace="~{layout :: flash(${msg})}"></div>
+
+            <section class="card filter-card" aria-label="查询条件">
+                <form class="filter-form" th:action="@{/taxpayer/list}" method="get">
+                    <div class="field-inline is-wide">
+                        <label for="companyName">企业名称</label>
+                        <input class="input" type="text" id="companyName" name="companyName"
+                               th:value="${companyName}" placeholder="输入企业名称关键字">
+                    </div>
+                    <div class="field-inline is-narrow">
+                        <label for="registrationStatus">登记状态</label>
+                        <select class="select" id="registrationStatus" name="registrationStatus">
+                            <option value="">全部状态</option>
+                            <option value="正常" th:selected="${registrationStatus == '正常'}">正常</option>
+                            <option value="停用" th:selected="${registrationStatus == '停用'}">停用</option>
+                        </select>
+                    </div>
+                    <div class="filter-actions">
+                        <button class="btn btn-primary" type="submit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="11" cy="11" r="7"/>
+                                <path d="m20 20-3.2-3.2"/>
+                            </svg>
+                            查询
+                        </button>
+                        <a class="btn" th:href="@{/taxpayer/list}">重置</a>
+                    </div>
+                </form>
+            </section>
+
+            <section class="card table-card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">
+                            纳税人列表
+                            <span class="count" th:text="${page.total}">0</span>
+                        </h2>
+                        <p class="card-subtitle">按创建时间倒序排列</p>
+                    </div>
+                    <span class="badge badge-neutral" th:text="|共 ${page.total} 条记录|">共 0 条记录</span>
+                </div>
+
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>企业名称</th>
+                            <th>纳税人识别号</th>
+                            <th>法定代表人</th>
+                            <th>联系电话</th>
+                            <th>注册地址</th>
+                            <th>行业类型</th>
+                            <th>登记状态</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="t : ${page.records}">
+                            <td class="cell-id" th:text="${t.id}">1</td>
+                            <td class="cell-primary"><span class="cell-company" th:text="${t.companyName}" th:title="${t.companyName}">企业名称</span></td>
+                            <td class="cell-code" data-label="纳税人识别号" th:text="${t.taxpayerIdentifyNo}">91330100MA2B3C4D5G</td>
+                            <td data-label="法定代表人" th:text="${#strings.isEmpty(t.legalRepresentative) ? '—' : t.legalRepresentative}">—</td>
+                            <td data-label="联系电话" th:text="${#strings.isEmpty(t.contactPhone) ? '—' : t.contactPhone}">—</td>
+                            <td class="col-address" data-label="注册地址">
+                                <span class="cell-ellipsis"
+                                      th:text="${#strings.isEmpty(t.registerAddress) ? '—' : t.registerAddress}"
+                                      th:title="${t.registerAddress}">—</span>
+                            </td>
+                            <td class="col-industry" data-label="行业类型" th:text="${#strings.isEmpty(t.industryType) ? '—' : t.industryType}">—</td>
+                            <td data-label="登记状态">
+                                <span class="badge"
+                                      th:classappend="${t.status == 1 ? 'badge-success' : 'badge-neutral'}"
+                                      th:text="${t.status == 1 ? '正常' : '停用'}">正常</span>
+                            </td>
+                            <td class="cell-time" data-label="创建时间"
+                                th:text="${#temporals.format(t.createTime, 'yyyy-MM-dd HH:mm')}">2026-01-01 10:00</td>
+                            <td class="cell-actions" data-label="操作">
+                                <div class="row-actions">
+                                    <a class="action" th:href="@{/taxpayer/edit/{id}(id=${t.id})}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M12 20h9"/>
+                                            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                                        </svg>
+                                        编辑
+                                    </a>
+                                    <a class="action is-danger" th:href="@{/taxpayer/delete/{id}(id=${t.id})}"
+                                       th:onclick="'return confirm(\'确定删除该纳税人?\');'">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M3 6h18"/>
+                                            <path d="M8 6V4h8v2"/>
+                                            <path d="M19 6l-1 14H6L5 6"/>
+                                            <path d="M10 11v5M14 11v5"/>
+                                        </svg>
+                                        删除
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(page.records)}">
+                            <td colspan="10">
+                                <div class="empty-state">
+                                    <div class="empty-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M4 21V5.5A2.5 2.5 0 0 1 6.5 3H14a2 2 0 0 1 2 2v16"/>
+                                            <path d="M16 9h2.5A1.5 1.5 0 0 1 20 10.5V21"/>
+                                            <path d="M2 21h20"/>
+                                        </svg>
+                                    </div>
+                                    <h3>暂无纳税人数据</h3>
+                                    <p>调整查询条件，或先新增一条纳税人档案。</p>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pager">
+                    <div class="pager-info">
+                        共 <b th:text="${page.total}">0</b> 条记录
+                        <span class="divider">·</span>
+                        第 <b th:text="${page.current}">1</b> / <b th:text="${page.pages > 0 ? page.pages : 1}">1</b> 页
+                    </div>
+                    <div class="pager-actions">
+                        <a class="page-btn" th:classappend="${page.current <= 1 ? 'is-disabled' : ''}"
+                           th:href="@{/taxpayer/list(pageNum=${page.current - 1},pageSize=${page.size},companyName=${companyName},registrationStatus=${registrationStatus})}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="m15 6-6 6 6 6"/>
+                            </svg>
+                            上一页
+                        </a>
+                        <span class="page-current" th:text="${page.current}">1</span>
+                        <a class="page-btn" th:classappend="${page.current >= page.pages ? 'is-disabled' : ''}"
+                           th:href="@{/taxpayer/list(pageNum=${page.current + 1},pageSize=${page.size},companyName=${companyName},registrationStatus=${registrationStatus})}">
+                            下一页
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="m9 6 6 6-6 6"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+</body>
+</html>

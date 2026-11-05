@@ -1,0 +1,8 @@
+target/
+*.class
+*.txt
+tax-system
+.idea/
+*.iml
+.vscode/
+*.log

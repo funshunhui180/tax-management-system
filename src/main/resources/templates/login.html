@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>登录 - 税务业务基础管理系统</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/css/app.css(v=2)}">
+</head>
+<body class="login-page">
+<div class="login-shell">
+    <div class="login-brand">
+        <span class="brand-logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3 4 7v5c0 4.5 3.2 7.6 8 9 4.8-1.4 8-4.5 8-9V7l-8-4Z"/>
+                <path d="m9 12 2 2 4-4"/>
+            </svg>
+        </span>
+        <span class="login-brand-text">
+            <strong>税务业务管理系统</strong>
+            <span>TAX ADMIN CONSOLE</span>
+        </span>
+    </div>
+
+    <section class="login-card">
+        <div class="login-head">
+            <h1>欢迎登录</h1>
+            <p>请使用您的账号进入业务工作台</p>
+        </div>
+
+        <div th:if="${error}" th:text="${error}" class="alert alert-danger" role="alert"></div>
+
+        <form th:action="@{/doLogin}" method="post" class="login-form">
+            <div class="form-group">
+                <label for="username">账号</label>
+                <input class="form-control" type="text" id="username" name="username"
+                       placeholder="请输入账号" autocomplete="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input class="form-control" type="password" id="password" name="password"
+                       placeholder="请输入密码" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg">登录</button>
+        </form>
+
+        <div class="login-hint">
+            <span>测试账号：admin / auditor / user</span>
+            <span>密码均为 123456</span>
+        </div>
+    </section>
+
+    <p class="login-footer">© 2026 税务业务基础管理系统</p>
+</div>
+</body>
+</html>

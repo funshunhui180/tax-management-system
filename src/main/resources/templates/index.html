@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('系统首页')}"></head>
+<body>
+<div class="app">
+    <div th:replace="~{layout :: sidebar('home')}"></div>
+
+    <div class="main">
+        <main class="content">
+            <header class="page-head">
+                <div>
+                    <div class="crumbs">
+                        <a th:href="@{/}">首页</a>
+                        <span class="sep">/</span>
+                        <span>工作台</span>
+                    </div>
+                    <h1>系统首页</h1>
+                    <p class="subtitle" th:if="${role == 0}">全局纳税人、申报单与审核概况</p>
+                    <p class="subtitle" th:if="${role == 1}">全局待审核与审核结果概况</p>
+                    <p class="subtitle" th:if="${role == 2}">仅展示当前账号所属企业的申报数据</p>
+                    <span class="scope-badge" th:classappend="${role != 2} ? 'is-global' : ''"
+                          th:text="${dataScopeLabel}">数据范围</span>
+                </div>
+                <div class="page-actions">
+                    <!-- 仅管理员可见：新增纳税人 -->
+                    <a class="btn" th:if="${canManageTaxpayer}" th:href="@{/taxpayer/add}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M4 21V5.5A2.5 2.5 0 0 1 6.5 3H14a2 2 0 0 1 2 2v16"/>
+                            <path d="M16 9h2.5A1.5 1.5 0 0 1 20 10.5V21"/>
+                            <path d="M2 21h20"/>
+                            <path d="M7.5 8h4M9.5 6v4"/>
+                        </svg>
+                        新增纳税人
+                    </a>
+                    <!-- 管理员、纳税人可见：填写申报；审核员必须隐藏 -->
+                    <a class="btn btn-primary" th:if="${canCreateDeclaration}" th:href="@{/declaration/add}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                        填写申报
+                    </a>
+                    <!-- 审核员可见：去审核申报单 -->
+                    <a class="btn btn-primary" th:if="${canAuditDeclaration}" th:href="@{/declaration/list}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7"/>
+                            <path d="m21 21-4.3-4.3"/>
+                        </svg>
+                        去审核申报单
+                    </a>
+                </div>
+            </header>
+
+            <section class="hero">
+                <div class="hero-inner">
+                    <div class="hero-eyebrow">
+                        <span class="dot"></span>
+                        <span th:text="|${roleName}工作台 · 税务业务基础管理系统|">税务业务基础管理系统</span>
+                    </div>
+                    <h1>欢迎使用税务业务管理系统</h1>
+                    <p th:if="${role == 0}">集中维护纳税人基础信息、办理申报单并完成审核，为您提供清晰、高效的日常业务工作台。</p>
+                    <p th:if="${role == 1}">集中查看待审核申报单，完成审核通过或驳回，审核结果全程留痕。</p>
+                    <p th:if="${role == 2}">查看本企业的申报进度，在线填写并提交申报单，数据范围仅限当前所属企业。</p>
+                    <div class="hero-actions">
+                        <a class="btn btn-white" th:href="@{/declaration/list}" th:if="${canAuditDeclaration}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="11" cy="11" r="7"/>
+                                <path d="m21 21-4.3-4.3"/>
+                            </svg>
+                            去审核申报单
+                        </a>
+                        <a class="btn btn-white" th:href="@{/declaration/add}" th:if="${canCreateDeclaration}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8l-5-5Z"/>
+                                <path d="M14 3v5h5"/>
+                                <path d="M8.5 13h7M8.5 16.5h4.5"/>
+                            </svg>
+                            开始填写申报
+                        </a>
+                        <a class="btn btn-light" th:href="@{/taxpayer/add}" th:if="${canManageTaxpayer}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M4 21V5.5A2.5 2.5 0 0 1 6.5 3H14a2 2 0 0 1 2 2v16"/>
+                                <path d="M16 9h2.5A1.5 1.5 0 0 1 20 10.5V21"/>
+                                <path d="M2 21h20"/>
+                            </svg>
+                            新增纳税人
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <div class="stat-grid">
+                <!-- 纳税人总数：管理员看全局；纳税人固定为本人这一户（1）；审核员不展示 -->
+                <a class="stat-card" th:if="${showTaxpayerCount}"
+                   th:href="${canManageTaxpayer} ? @{/taxpayer/list} : null">
+                    <span class="stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M4 21V5.5A2.5 2.5 0 0 1 6.5 3H14a2 2 0 0 1 2 2v16"/>
+                            <path d="M16 9h2.5A1.5 1.5 0 0 1 20 10.5V21"/>
+                            <path d="M2 21h20"/>
+                        </svg>
+                    </span>
+                    <span>
+                        <span class="stat-value" th:text="${taxpayerCount}">0</span>
+                        <span class="stat-label">纳税人总数</span>
+                    </span>
+                    <span class="stat-link" aria-hidden="true" th:if="${canManageTaxpayer}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 17 17 7M9 7h8v8"/>
+                        </svg>
+                    </span>
+                </a>
+
+                <a class="stat-card" th:href="@{/declaration/list}">
+                    <span class="stat-icon is-cyan">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8l-5-5Z"/>
+                            <path d="M14 3v5h5"/>
+                            <path d="M8.5 13h7M8.5 16.5h4.5"/>
+                        </svg>
+                    </span>
+                    <span>
+                        <span class="stat-value" th:text="${declarationCount}">0</span>
+                        <span class="stat-label">申报单总数</span>
+                    </span>
+                    <span class="stat-link" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 17 17 7M9 7h8v8"/>
+                        </svg>
+                    </span>
+                </a>
+
+                <a class="stat-card" th:href="@{/declaration/list(status=0)}">
+                    <span class="stat-icon is-amber">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9"/>
+                            <path d="M12 7.5V12l3 1.8"/>
+                        </svg>
+                    </span>
+                    <span>
+                        <span class="stat-value" th:text="${pendingCount}">0</span>
+                        <span class="stat-label">待审核申报</span>
+                    </span>
+                    <span class="stat-link" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 17 17 7M9 7h8v8"/>
+                        </svg>
+                    </span>
+                </a>
+
+                <a class="stat-card" th:href="@{/declaration/list(status=1)}">
+                    <span class="stat-icon is-green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9"/>
+                            <path d="m8.2 12.2 2.5 2.5 5.1-5.2"/>
+                        </svg>
+                    </span>
+                    <span>
+                        <span class="stat-value" th:text="${approvedCount}">0</span>
+                        <span class="stat-label">已通过申报</span>
+                    </span>
+                    <span class="stat-link" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 17 17 7M9 7h8v8"/>
+                        </svg>
+                    </span>
+                </a>
+            </div>
+
+            <div class="section-head">
+                <div>
+                    <h2>快捷入口</h2>
+                    <p>常用业务操作，一步直达</p>
+                </div>
+            </div>
+
+            <div class="quick-grid">
+                <!-- 纳税人管理：仅管理员可见 -->
+                <a class="quick-card" th:href="@{/taxpayer/list}" th:if="${canManageTaxpayer}">
+                    <span class="quick-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M4 21V5.5A2.5 2.5 0 0 1 6.5 3H14a2 2 0 0 1 2 2v16"/>
+                            <path d="M16 9h2.5A1.5 1.5 0 0 1 20 10.5V21"/>
+                            <path d="M2 21h20"/>
+                            <path d="M7.5 7.5h4M7.5 11h4M7.5 14.5h4"/>
+                        </svg>
+                    </span>
+                    <span>
+                        <h3>纳税人管理</h3>
+                        <p>查询、登记与维护纳税人基础档案。</p>
+                    </span>
+                    <span class="quick-arrow" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M13 6l6 6-6 6"/>
+                        </svg>
+                    </span>
+                </a>
+
+                <a class="quick-card" th:href="@{/declaration/list}">
+                    <span class="quick-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8l-5-5Z"/>
+                            <path d="M14 3v5h5"/>
+                            <path d="M8.5 13h7M8.5 16.5h4.5"/>
+                        </svg>
+                    </span>
+                    <span>
+                        <h3>申报管理</h3>
+                        <p th:text="${canAuditDeclaration ? '查看申报记录，办理审核通过或驳回。' : (isTaxpayer ? '查看本企业申报进度与审核结果。' : '查看全局申报进度，办理审核通过或驳回。')}">查看申报进度，办理审核通过或驳回。</p>
+                    </span>
+                    <span class="quick-arrow" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M13 6l6 6-6 6"/>
+                        </svg>
+                    </span>
+                </a>
+
+                <!-- 审核员显示“去审核申报单”，管理员/纳税人显示“填写申报表” -->
+                <a class="quick-card"
+                   th:href="${canAuditDeclaration} ? @{/declaration/list} : @{/declaration/add}">
+                    <span class="quick-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8l-5-5Z"/>
+                            <path d="M14 3v5h5"/>
+                            <path d="M12 11v6M9 14h6"/>
+                        </svg>
+                    </span>
+                    <span>
+                        <h3 th:text="${canAuditDeclaration} ? '去审核申报单' : '填写申报表'">填写申报表</h3>
+                        <p th:text="${canAuditDeclaration ? '查看待审核申报，完成审核或驳回。' : (isTaxpayer ? '选择税种与所属期，提交本企业的申报记录。' : '选择纳税人与税种，提交新的申报记录。')}">选择纳税人与税种，提交新的申报记录。</p>
+                    </span>
+                    <span class="quick-arrow" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M13 6l6 6-6 6"/>
+                        </svg>
+                    </span>
+                </a>
+            </div>
+
+            <div class="section-head">
+                <div>
+                    <h2>业务办理流程</h2>
+                    <p>三步完成一次申报与审核</p>
+                </div>
+            </div>
+
+            <div class="card steps">
+                <div class="step">
+                    <span class="step-no">01</span>
+                    <div>
+                        <h3>维护纳税人</h3>
+                        <p>在纳税人管理中登记企业基础信息，作为申报的前置数据。</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-no">02</span>
+                    <div>
+                        <h3>填写申报单</h3>
+                        <p>选择纳税人、税种与所属期，填写金额后提交待审核。</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-no">03</span>
+                    <div>
+                        <h3>审核归档</h3>
+                        <p>在申报管理中完成审核通过或填写原因驳回，全程留痕。</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>
