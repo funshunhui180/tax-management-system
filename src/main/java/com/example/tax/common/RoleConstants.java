@@ -25,11 +25,16 @@ public final class RoleConstants {
         if (role == null) {
             return "未知角色";
         }
-        return switch (role) {
-            case ADMIN -> "管理员";
-            case AUDITOR -> "审核员";
-            case TAXPAYER -> "纳税人";
-            default -> "未知角色";
-        };
+        // 使用传统 switch 语句：Java 11 不支持 switch 表达式（case ... -> ），该语法需 Java 14+
+        switch (role) {
+            case ADMIN:
+                return "管理员";
+            case AUDITOR:
+                return "审核员";
+            case TAXPAYER:
+                return "纳税人";
+            default:
+                return "未知角色";
+        }
     }
 }

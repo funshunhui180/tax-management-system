@@ -3,9 +3,9 @@ package com.example.tax.interceptor;
 import com.example.tax.annotation.RequireRoles;
 import com.example.tax.common.RoleConstants;
 import com.example.tax.entity.User;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -75,9 +75,11 @@ public class RoleInterceptor implements HandlerInterceptor {
         }
 
         // 2) 注解规则：非 Controller 方法（静态资源等）无需校验
-        if (!(handler instanceof HandlerMethod handlerMethod)) {
+        // Java 11 不支持 instanceof 模式匹配，改为先判断再强转
+        if (!(handler instanceof HandlerMethod)) {
             return true;
         }
+        HandlerMethod handlerMethod = (HandlerMethod) handler;
 
         RequireRoles requireRoles = handlerMethod.getMethodAnnotation(RequireRoles.class);
         if (requireRoles == null) {
